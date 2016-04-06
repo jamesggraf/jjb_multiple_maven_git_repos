@@ -1,0 +1,35 @@
+---
+- scm:
+    name: first-scm
+    scm:
+      - git:
+         url: ssh://jenkins@review.openstack.org:29418/first.git
+         branches:
+          - origin/master
+
+- scm:
+    name: second-scm
+    scm:
+      - git:
+         url: ssh://jenkins@review.openstack.org:29418/second.git
+         branches:
+          - origin/master
+- job:
+    name: my_multi_maven_job
+    parameters:
+      - string:
+          name: Message
+          description: A message to echo
+    scm:
+      - first-scm
+      - second-scm
+    builders:
+      - shell: !include-raw: multi.sh
+      - maven-target:
+          maven-version: Maven3
+          pom: first/pom.xml
+          goals: clean install
+      - maven-target:
+          maven-version: Maven3
+          pom: second/pom.xml
+          goals: clean publish
